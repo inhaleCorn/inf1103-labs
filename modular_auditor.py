@@ -99,5 +99,3 @@ def run_inventory_auditor():
     generate_report(total_inventory, failed_entries)
 
 
-if __name__ == "__main__":
-    run_inventory_auditor()
