@@ -37,3 +37,18 @@ def load_inventory(filepath=INVENTORY_FILE):
         print(f"[WARNING] Could not read '{filepath}' ({e}). Starting fresh.\n")
         return 0, []
 
+def save_inventory(total_inventory, history, filepath=INVENTORY_FILE):
+    """
+    Requirement 3 & 4: Saves final total and transaction history list to disk.
+    Line 1: Total inventory integer
+    Line 2: Comma-separated history list
+    """
+    try:
+        with open(filepath, "w") as f:
+            f.write(f"{total_inventory}\n")
+            f.write(",".join(map(str, history)) + "\n")
+        print(f"\n[INFO] Data saved successfully to '{filepath}'.")
+    except Exception as e:
+        print(f"\n[ERROR] Failed to save inventory data: {e}")
+
+
