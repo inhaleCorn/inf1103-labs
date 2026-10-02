@@ -1,27 +1,20 @@
-PS C:\Users\jiawe\Desktop\SIT Resources\Year 1\Trimester 1\INF1103 Programming Fundamentals with DevOps\L03\inf1103-labs> git log
-commit 6f0d6350146444e2ae3244da805e3dc104f77a7d (HEAD -> main, origin/main)
+PS C:\Users\jiawe\Desktop\SIT Resources\Year 1\Trimester 1\INF1103 Programming Fundamentals with DevOps\L04\inf1103-labs> git log
+commit b9d4aa1460f6f13c498527c6481b054f8d37d883 (HEAD -> main, origin/main)
 Author: Jia Wen <2603800@sit.singaporetech.sg>
-Date:   Fri Sep 18 10:39:41 2026 +0800
+Date:   Fri Sep 25 11:16:36 2026 +0800
 
-    Third Post
+    Fourth commit
 
-commit 0e857e71b8b0c9acc1a92d126ad2ee39755203df
+commit 4e41c54f8f8221c68e7e1000dfc030f8baec7fbd
 Author: Jia Wen <2603800@sit.singaporetech.sg>
-Date:   Fri Sep 18 10:33:05 2026 +0800
+Date:   Fri Sep 25 11:13:05 2026 +0800
 
-    Second Post
+    C:\Users\jiawe\Desktop\SIT Resources\Year 1\Trimester 1\INF1103 Programming Fundamentals with DevOps\L04\inf1103-labs
 
-commit 3553db3507f1096411dc6943c3477cc11b8c6eae
+commit c6a708a6bcfced9afdefa779079be3762dad6aeb
 Author: Jia Wen <2603800@sit.singaporetech.sg>
-Date:   Fri Sep 11 11:01:53 2026 +0800
-
-    inf1103
-
+Date:   Fri Sep 25 11:09:53 2026 +0800
 :
-commit 6f0d6350146444e2ae3244da805e3dc104f77a7d (HEAD -> main, origin/main)
-Author: Jia Wen <2603800@sit.singaporetech.sg>
-Date:   Fri Sep 18 10:39:41 2026 +0800
-
     Third Post
 
 commit 0e857e71b8b0c9acc1a92d126ad2ee39755203df
