@@ -1,4 +1,9 @@
-PS C:\Users\jiawe\Desktop\SIT Resources\Year 1\Trimester 1\INF1103 Programming Fundamentals with DevOps\L04\inf1103-labs> git log
+commit 118ac6e6cb8a95e2d08c58d91636f9c4dbcdf507 (HEAD -> main, origin/main)
+Author: Jia Wen <2603800@sit.singaporetech.sg>
+Date:   Fri Oct 2 10:03:43 2026 +0800
+
+    Sixth Commit
+
 commit b9d4aa1460f6f13c498527c6481b054f8d37d883 (HEAD -> main, origin/main)
 Author: Jia Wen <2603800@sit.singaporetech.sg>
 Date:   Fri Sep 25 11:16:36 2026 +0800
