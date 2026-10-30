@@ -1,17 +1,27 @@
 """
-INF1103: Lab 6 - Basics of Object-Oriented Programming
+INF1103: Lab 7 - Object-Oriented Relationships Part 1 (Inheritance, Overriding, Abstract, Interfaces)
 File: inventory_manager.py
-Description: Refactored inventory management system using Product and Inventory classes.
+Description: Refactored inventory management system with Inheritance, Abstract Classes, and Interfaces.
 """
 
+from abc import ABC, abstractmethod
 import json
 import os
 
 INVENTORY_FILE = "inventory.json"
 
 
-class Product:
-    """Represents and manages an individual product."""
+class CanBeShipped(ABC):
+    """Interface-style abstract base class for items that require shipping."""
+
+    @abstractmethod
+    def calculate_shipping_cost(self) -> float:
+        """Calculates and returns the shipping cost for the product."""
+        pass
+
+
+class Product(ABC):
+    """Abstract base class representing an individual product."""
 
     def __init__(self, product_id: str, name: str, price: float, stock: int):
         self.__product_id = product_id
@@ -38,27 +48,116 @@ class Product:
         self.__stock = new_stock
 
     def display_information(self) -> None:
-        """Displays formatted product details matching the original output."""
-        print(f"ID: {self.__product_id} | Name: {self.__name} | Price: ${self.__price:.2f} | Stock: {self.__stock}")
+        """Displays base product details."""
+        print(f"ID: {self.__product_id} | Name: {self.__name} | Price: ${self.__price:.2f} | Stock: {self.__stock}", end="")
+
+    @abstractmethod
+    def get_fulfilment_info(self) -> str:
+        """Abstract method to return product fulfilment details."""
+        pass
+
+    @abstractmethod
+    def to_dict(self) -> dict:
+        """Abstract method to convert product instance to dictionary for JSON persistence."""
+        pass
+
+    @classmethod
+    @abstractmethod
+    def from_dict(cls, data: dict):
+        """Abstract class method to create a Product instance from dictionary data."""
+        pass
+
+
+class PhysicalProduct(Product, CanBeShipped):
+    """Represents a physical product that requires shipping and has weight."""
+
+    def __init__(self, product_id: str, name: str, price: float, stock: int, weight: float):
+        super().__init__(product_id, name, price, stock)
+        self.__weight = float(weight)
+
+    def get_weight(self) -> float:
+        return self.__weight
+
+    def get_fulfilment_info(self) -> str:
+        return "Fulfilment: Requires physical shipping."
+
+    def calculate_shipping_cost(self) -> float:
+        """Calculates shipping cost based on weight ($5.00 base + $2.00 per kg)."""
+        return 5.00 + (2.00 * self.__weight)
+
+    def display_information(self) -> None:
+        """Overrides display_information to include weight, shipping cost, and fulfilment info."""
+        super().display_information()
+        print(f" | Type: Physical | Weight: {self.__weight}kg | Shipping: ${self.calculate_shipping_cost():.2f} | {self.get_fulfilment_info()}")
 
     def to_dict(self) -> dict:
-        """Converts product instance data to dictionary for JSON persistence."""
         return {
-            "id": self.__product_id,
-            "name": self.__name,
-            "price": self.__price,
-            "stock": self.__stock
+            "type": "physical",
+            "id": self.get_product_id(),
+            "name": self.get_name(),
+            "price": self.get_price(),
+            "stock": self.get_stock(),
+            "weight": self.__weight
         }
 
     @classmethod
     def from_dict(cls, data: dict):
-        """Creates a Product instance from dictionary data."""
         return cls(
             product_id=data["id"],
             name=data["name"],
             price=data["price"],
-            stock=data["stock"]
+            stock=data["stock"],
+            weight=data["weight"]
         )
+
+
+class DigitalProduct(Product):
+    """Represents a digital product delivered online with a download size."""
+
+    def __init__(self, product_id: str, name: str, price: float, stock: int, download_size: float):
+        super().__init__(product_id, name, price, stock)
+        self.__download_size = float(download_size)
+
+    def get_download_size(self) -> float:
+        return self.__download_size
+
+    def get_fulfilment_info(self) -> str:
+        return "Fulfilment: Delivered digitally via download link."
+
+    def display_information(self) -> None:
+        """Overrides display_information to include download size and fulfilment info."""
+        super().display_information()
+        print(f" | Type: Digital | Download Size: {self.__download_size}MB | {self.get_fulfilment_info()}")
+
+    def to_dict(self) -> dict:
+        return {
+            "type": "digital",
+            "id": self.get_product_id(),
+            "name": self.get_name(),
+            "price": self.get_price(),
+            "stock": self.get_stock(),
+            "download_size": self.__download_size
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        return cls(
+            product_id=data["id"],
+            name=data["name"],
+            price=data["price"],
+            stock=data["stock"],
+            download_size=data["download_size"]
+        )
+
+
+def create_product_from_dict(data: dict) -> Product:
+    """Factory function to instantiate the correct product subclass based on the type identifier."""
+    prod_type = data.get("type")
+    if prod_type == "digital":
+        return DigitalProduct.from_dict(data)
+    else:
+        # Defaults to physical for backwards compatibility or missing type tags
+        return PhysicalProduct.from_dict(data)
 
 
 class Inventory:
@@ -84,13 +183,13 @@ class Inventory:
     def display_all(self) -> None:
         """Displays all products in the inventory."""
         print("\nCurrent Inventory")
-        print("-" * 48)
+        print("-" * 80)
         if not self.__products:
             print("Inventory is empty.")
         else:
             for product in self.__products:
                 product.display_information()
-        print("-" * 48)
+        print("-" * 80)
 
     def get_all_products(self) -> list:
         """Returns the list of Product instances."""
@@ -109,7 +208,7 @@ def load_inventory(filepath=INVENTORY_FILE) -> Inventory:
             with open(filepath, "r") as f:
                 data = json.load(f)
                 for item in data:
-                    product = Product.from_dict(item)
+                    product = create_product_from_dict(item)
                     inventory.add_product(product)
             print("inventory.json found.")
             print("Inventory loaded successfully.")
@@ -119,9 +218,9 @@ def load_inventory(filepath=INVENTORY_FILE) -> Inventory:
 
     print("inventory.json not found. Initializing with default inventory.")
     default_items = [
-        Product("P001", "Laptop", 1200.00, 15),
-        Product("P002", "Mouse", 25.50, 40),
-        Product("P003", "Keyboard", 45.00, 25)
+        PhysicalProduct("P001", "Laptop", 1200.00, 15, 2.5),
+        PhysicalProduct("P002", "Mouse", 25.50, 40, 0.2),
+        DigitalProduct("P003", "Antivirus Software", 49.99, 100, 150.0)
     ]
     for p in default_items:
         inventory.add_product(p)
@@ -129,7 +228,7 @@ def load_inventory(filepath=INVENTORY_FILE) -> Inventory:
 
 
 def save_inventory(inventory: Inventory, filepath=INVENTORY_FILE):
-    """Saves inventory data to inventory.json."""
+    """Saves inventory data to inventory.json preserving product types."""
     try:
         print("Saving inventory...")
         data = [product.to_dict() for product in inventory.get_all_products()]
@@ -146,7 +245,7 @@ def display_all(inventory: Inventory):
 
 
 def add_product(inventory: Inventory):
-    """Adds a new product object to the inventory."""
+    """Prompts user for product type and details, then adds to inventory."""
     print("\nAdd New Product")
     product_id = input("Product ID: ").strip()
 
@@ -162,7 +261,35 @@ def add_product(inventory: Inventory):
         print("Error: Invalid input format for price or stock.")
         return
 
-    new_product = Product(product_id, name, price, stock)
+    print("Select Product Type:")
+    print("1. Physical Product")
+    print("2. Digital Product")
+    choice = input("Enter choice (1-2): ").strip()
+
+    if choice == "1":
+        try:
+            weight = float(input("Weight (kg): "))
+            if weight < 0:
+                print("Error: Weight cannot be negative.")
+                return
+            new_product = PhysicalProduct(product_id, name, price, stock, weight)
+        except ValueError:
+            print("Error: Invalid input format for weight.")
+            return
+    elif choice == "2":
+        try:
+            download_size = float(input("Download Size (MB): "))
+            if download_size < 0:
+                print("Error: Download size cannot be negative.")
+                return
+            new_product = DigitalProduct(product_id, name, price, stock, download_size)
+        except ValueError:
+            print("Error: Invalid input format for download size.")
+            return
+    else:
+        print("Error: Invalid product type selection.")
+        return
+
     inventory.add_product(new_product)
     print("Product added successfully!")
 
@@ -188,26 +315,23 @@ def update_stock(inventory: Inventory):
 
 
 def search_product(inventory: Inventory):
-    """Searches for a product by ID and displays details using Product class methods."""
+    """Searches for a product by ID and displays polymorphically formatted details."""
     print("\nSearch Product")
     product_id = input("Enter Product ID: ").strip()
 
     product = inventory.search_product(product_id)
     if product:
         print("Product Found")
-        print("-" * 48)
-        print(f"ID: {product.get_product_id()}")
-        print(f"Name: {product.get_name()}")
-        print(f"Price: ${product.get_price():.2f}")
-        print(f"Stock: {product.get_stock()}")
-        print("-" * 48)
+        print("-" * 60)
+        product.display_information()
+        print("-" * 60)
     else:
         print("Product not found.")
 
 
 def main():
     print("========================================")
-    print("INVENTORY MANAGEMENT SYSTEM")
+    print("INVENTORY MANAGEMENT SYSTEM (LAB 7)")
     print("========================================")
 
     inventory = load_inventory()
