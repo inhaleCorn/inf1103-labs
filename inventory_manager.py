@@ -331,7 +331,7 @@ def search_product(inventory: Inventory):
 
 def main():
     print("========================================")
-    print("INVENTORY MANAGEMENT SYSTEM (LAB 7)")
+    print("INVENTORY MANAGEMENT SYSTEM")
     print("========================================")
 
     inventory = load_inventory()
